@@ -76,7 +76,7 @@ def scraper():
         for x in addresses:
             if count_address < 3000:
                 count_address += 1
-                x = x.text
+                x = x.text.upper()
                 address.append(x)
         
         count_status = 0
@@ -84,12 +84,14 @@ def scraper():
         for x in statuses:
             if count_status < 3000:
                 count_status += 1
-                x = x.text
+                x = x.text.upper()
                 status.append(x)
-
 
     except:
         print('could not find myTable')
+    
+    print(address[0:5])
+    print(status[0:5])
 
     driver.quit()
 
