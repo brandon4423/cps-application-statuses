@@ -1,10 +1,17 @@
 import creds
+import json
+import gspread
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+
+login = gspread.service_account(filename="service_account.json")
+sheet_name = login.open("HOA")
+worksheet = sheet_name.worksheet("CPSREF")
+values = worksheet.get_all_records("A1:B7617")
 
 # Google spreadsheets api
 # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/append
@@ -25,49 +32,16 @@ username = creds.username
 password = creds.password
 url = "https://secure.cpsenergy.com/welcome/solarlogin.jsp"
 
-
-def scraperall():
-    start_time = time.time()
-    try:
-        main = WebDriverWait(driver, 5).until(
-            EC.presence_of_all_elements_located((By.ID, 'myTable'))
-        )
-        tables = driver.find_elements(By.XPATH, '//*[@id="myTable"]/tbody/tr/td')
-        
-        count = 0
-        tablist = []
-        for x in tables:
-            if count < 184:
-                count += 1
-                x = x.text
-                tablist.append(x)
-                address = tablist[1::8]
-                status = tablist[3::8]
-
-
-    except:
-        print('could not find myTable')
-    
-    tablist = ['NEW MESSAGE' if item == ' NEW' else item for item in tablist]
-    tablist = ['NO MESSAGE' if item == '' else item for item in tablist]
-
-    print(len(tablist))
-    print(address)
-    print(status)
-    print(tablist[8:16])
-
-    driver.quit()
-
-    end_time = time.time()
-    final_time = end_time - start_time
-    print(f"Run in: {final_time} seconds")
-
 def scraper():
     start_time = time.time()
 
     my_dict = {
         'Address': [],
         'Status': []
+    }
+
+    g_dict = {
+        'Address': [],
     }
 
     try:
@@ -80,7 +54,7 @@ def scraper():
         count_address = 0
         address = []
         for x in addresses:
-            if count_address < 3000:
+            if count_address < 5:
                 count_address += 1
                 x = x.text.upper()
                 address.append(x)
@@ -89,7 +63,7 @@ def scraper():
         count_status = 0
         status = []
         for x in statuses:
-            if count_status < 3000:
+            if count_status < 5:
                 count_status += 1
                 x = x.text.upper()
                 status.append(x)
@@ -98,11 +72,17 @@ def scraper():
 
     except:
         print('could not find myTable')
+
+    with open("cps.json", "w") as fp:
+        json.dump(my_dict, fp, indent=4)
     
-    print(address[0:5])
-    print(status[0:5])
-    print(my_dict["Address"][0:5])
-    print(my_dict['Status'][0:5])
+    with open("gspread.json", "w") as fp:
+        json.dump(values, fp, indent=4)
+    
+    # result = [my_dict[i] for i in g_dict]
+
+    # print(f'Found addresses: {result}')
+    print(my_dict)
 
     driver.quit()
 

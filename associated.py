@@ -11,7 +11,7 @@ import time
 login = gspread.service_account(filename="service_account.json")
 sheet_name = login.open("HOA")
 worksheet = sheet_name.worksheet("CPSREF")
-values = worksheet.get_values("A1:B7617")
+spsrid = worksheet.get_values("A1:A7617")
 spaddress = worksheet.get_values("B1:B7617")
 
 # Google spreadsheets api
@@ -42,7 +42,7 @@ def scraper():
     }
 
     g_dict = {
-        'Address': []
+        'Address': [],
     }
 
     try:
