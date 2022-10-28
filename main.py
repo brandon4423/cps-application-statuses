@@ -64,6 +64,12 @@ def scraperall():
 
 def scraper():
     start_time = time.time()
+
+    my_dict = {
+        'Address': [],
+        'Status': []
+    }
+
     try:
         main = WebDriverWait(driver, 5).until(
             EC.presence_of_all_elements_located((By.ID, 'myTable'))
@@ -78,6 +84,7 @@ def scraper():
                 count_address += 1
                 x = x.text.upper()
                 address.append(x)
+                my_dict['Address'].append(x)
         
         count_status = 0
         status = []
@@ -86,12 +93,16 @@ def scraper():
                 count_status += 1
                 x = x.text.upper()
                 status.append(x)
+                my_dict['Status'].append(x)
+
 
     except:
         print('could not find myTable')
     
     print(address[0:5])
     print(status[0:5])
+    print(my_dict["Address"][0:5])
+    print(my_dict['Status'][0:5])
 
     driver.quit()
 

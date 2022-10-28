@@ -1,4 +1,5 @@
 import creds
+import json
 import gspread
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -32,45 +33,18 @@ username = creds.username
 password = creds.password
 url = "https://secure.cpsenergy.com/welcome/solarlogin.jsp"
 
-
-def scraperall():
-    start_time = time.time()
-    try:
-        main = WebDriverWait(driver, 5).until(
-            EC.presence_of_all_elements_located((By.ID, 'myTable'))
-        )
-        tables = driver.find_elements(By.XPATH, '//*[@id="myTable"]/tbody/tr/td')
-        
-        count = 0
-        tablist = []
-        for x in tables:
-            if count < 184:
-                count += 1
-                x = x.text
-                tablist.append(x)
-                address = tablist[1::8]
-                status = tablist[3::8]
-
-
-    except:
-        print('could not find myTable')
-    
-    tablist = ['NEW MESSAGE' if item == ' NEW' else item for item in tablist]
-    tablist = ['NO MESSAGE' if item == '' else item for item in tablist]
-
-    print(len(tablist))
-    print(address)
-    print(status)
-    print(tablist[8:16])
-
-    driver.quit()
-
-    end_time = time.time()
-    final_time = end_time - start_time
-    print(f"Run in: {final_time} seconds")
-
 def scraper():
     start_time = time.time()
+
+    my_dict = {
+        'Address': [],
+        'Status': []
+    }
+
+    g_dict = {
+        'Address': []
+    }
+
     try:
         main = WebDriverWait(driver, 5).until(
             EC.presence_of_all_elements_located((By.ID, 'myTable'))
@@ -85,6 +59,7 @@ def scraper():
                 count_address += 1
                 x = x.text.upper()
                 address.append(x)
+                my_dict['Address'].append(x)
         
         count_status = 0
         status = []
@@ -93,38 +68,32 @@ def scraper():
                 count_status += 1
                 x = x.text.upper()
                 status.append(x)
+                my_dict['Status'].append(x)
+
+        count_spaddress = 0
+        refaddress = []
+        for x in spaddress:
+            if count_spaddress < 5000:
+                count_spaddress += 1
+                refaddress.append(x)
+                g_dict['Address'].append(x)
 
     except:
         print('could not find myTable')
-   
 
-    print(address[0:5])
-    print(status[0:5])
-    print(values[1])
+    with open("cps.json", "w") as fp:
+        json.dump(my_dict, fp, indent=4)
+    
+    result = [my_dict[i] for i in g_dict]
 
-    print(type(address[0:5]))
-    print(type(status[0:5]))
-    print(type(values[1]))
+    print(f'Found addresses: {result}')
+    print(my_dict)
 
     driver.quit()
 
     end_time = time.time()
     final_time = end_time - start_time
     print(f"Run in: {final_time} seconds")
-
-def tester():
-    address = ['630 CANADIAN GOOSE', '1927 SHOREHAM']
-    status = ['RECEIVED SENT TO DG', 'COMMISSIONING VALIDATED']
-    values = ['107743', '1927 SHOREHAM']
-
-    res = []
-    i = 0
-    while (i < len(address)):
-        if (values.count(address[i]) > 0):
-            res.append(i)
-        i += 1
-
-    print(res)
 
 def main():
     driver.minimize_window()

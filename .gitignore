@@ -2,3 +2,6 @@
 __pycache__/creds.cpython-311.pyc
 creds.py
 service_account.json
+allcps.json
+cps.json
+__pycache__/creds.cpython-310.pyc
